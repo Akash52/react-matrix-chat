@@ -83,6 +83,8 @@ function App() {
           </option>
         ))}
       </select>
+      <h2>Room Details</h2>
+      <p>Room ID {roomId}</p>
     </div>
   );
 }
