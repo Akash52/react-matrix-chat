@@ -4,8 +4,9 @@ import sdk from "matrix-js-sdk";
 
 function App() {
   const [message, setMessage] = useState("");
-  const [isTyping, setIsTyping] = useState("");
   const [history, setHistory] = useState<Array<string>>([]);
+  const [roomId, setRoomId] = useState("!LGdwqwGzNMDBhONJkt:matrix.org");
+  console.log(roomId);
   const [client, setClient] = useState(
     sdk.createClient({
       baseUrl: "https://matrix.org",
@@ -13,8 +14,6 @@ function App() {
       userId: "@trainee123:matrix.org",
     })
   );
-
-  const testRoomId = "!LGdwqwGzNMDBhONJkt:matrix.org";
 
   useEffect(() => {
     if (!client) return;
@@ -27,11 +26,6 @@ function App() {
 
     client.on("event", function (event: any) {
       const eventType = event.getType();
-
-      if (eventType === "m.typing") {
-        const username = event.event.content.user_ids;
-        setIsTyping(username ? `${username} is typing ...` : "");
-      }
 
       if (eventType === "m.room.message") {
         const currentMessage = event.event.content.body;
@@ -47,7 +41,7 @@ function App() {
     };
 
     client
-      .sendEvent(testRoomId, "m.room.message", content, "")
+      .sendEvent(roomId, "m.room.message", content, "")
       .then((res: any) => {
         // message sent successfully
         console.log("message sent successfully", res);
@@ -62,13 +56,7 @@ function App() {
     setMessage(e.target.value);
   };
 
-  //map room list
-  const mapRoomList = () => {
-    if (!client) return;
-
-    const rooms = client.getRooms();
-    console.log("rooms", rooms);
-  };
+  const allRooms = client.getRooms();
 
   return (
     <div className="App">
@@ -87,6 +75,14 @@ function App() {
           <p key={index}>{message}</p>
         ))}
       </div>
+      <h3>Select a room</h3>
+      <select onChange={(e) => setRoomId(e.target.value)}>
+        {allRooms.map((room: any) => (
+          <option key={room.roomId} value={room.roomId}>
+            {room.name}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
